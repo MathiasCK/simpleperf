@@ -1,7 +1,7 @@
 from sys import argv
 from getopt import getopt
 
-opts, args = getopt(argv[1:], "scb:p:f:", ["server", "client", "bind", "port", "format"])
+opts, args = getopt(argv[1:], "scb:p:f:", ["server", "client", "bind=", "port=", "format="])
 
 def checkMode():
     for opt, arg in opts:
@@ -22,7 +22,10 @@ def checkServerOpts():
       if opt in ('-b', '--bind'):
           bind = arg
       if opt in ('-p', '--port'):
+          print("ARG", arg)
+          print("OPT", opt)
           port = arg
+          print("PORT", port)
       if opt in ('-f', '--format'):
         format = arg
 
