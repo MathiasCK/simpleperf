@@ -9,7 +9,7 @@ def handleRequest(sock):
 def Main():
     bind, port, format = utils.checkServerOpts()
     try:
-        SERVER_SOCK.bind((bind, port))
+        SERVER_SOCK.bind((bind, int(port)))
         print("---------------------------------------------")
         print(f"A simpleperf server is listening on port {str(port)}")
         print("---------------------------------------------")

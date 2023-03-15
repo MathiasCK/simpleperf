@@ -8,7 +8,7 @@ def Main():
     elif mode == "client":
         client.Main()
     else:
-        raise Exception("Not valid")
+        raise Exception("Error: you must run either in server or client mode")
     
 
 if __name__ == "__main__":
