@@ -1,19 +1,41 @@
 from utils import utils
 from socket import socket, AF_INET, SOCK_STREAM, SOL_SOCKET, SO_REUSEADDR
-from threading import Thread, Lock
+import threading
+import time
+import math
 
 server = socket(AF_INET, SOCK_STREAM)
 
-clients = set()
-clients_lock = Lock()
+def handleRequest(client, addr):
+    start_time = time.time()
+    total_received = 0
+    
+    while True:
+        data = client.recv(1000)
+        if not data or data == b"BYE":
+            break
+        total_received += len(data)
 
-def handleRequest(client, addr, bind, port):
-    print(f"A simpleperf client <{addr[0]}:{addr[1]}> is connected with <{bind}:{port}>")
+    elapsed_time = time.time() - start_time
+    bandwidth = "{:.2f}".format(int(total_received / elapsed_time / (1000 * 1000)))
+    recieved = "{:.2f}".format(total_received / (1000 * 1000))
+
+    print(f"{addr[0]}:{addr[1]}")
+    print(recieved, bandwidth)
+
+    result = [ f"{addr[0]}:{addr[1]}", "0.0 - 10.0", recieved, bandwidth ]
+
+    print("{:<20} {:<15} {:<15} {:<15}".format('ID','Interval','Recieved','Rate'))
+    print("{:<20} {:<15} {:<15} {:<15}".format(f"{addr[0]}:{addr[1]}",'0.0 - 10.0',f"{recieved} MB",f"{bandwidth} Mbps"))
+    
+
+
+    client.sendall(str(result).encode('utf-8'))
+    client.close()
 
 def Main():
     bind, port, format = utils.checkServerOpts()
     try:
-        server.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
         server.bind((bind, int(port)))
         print("---------------------------------------------")
         print(f"A simpleperf server is listening on port {str(port)}")
@@ -25,17 +47,12 @@ def Main():
     try:
         while True:
             client, addr = server.accept()
+            print(f"A simpleperf client <{addr[0]}:{addr[1]}> is connected with <{bind}:{port}>")
 
-            with clients_lock:
-                clients.add(client)
-    
-            thread = Thread(
-                target=handleRequest, args=(client, addr, bind, port))
-            thread.start()
+            threading.Thread(target=handleRequest, args=(client, addr)).start()
     except KeyboardInterrupt:
         print("Stopped by Ctrl+C")
     finally:
-        # Close server connection
         if server:
             server.close()
 
