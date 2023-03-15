@@ -5,9 +5,9 @@ opts, args = getopt(argv[1:], "scb:p:f:", ["server", "client", "bind", "port", "
 
 def checkMode():
     for opt, arg in opts:
-      if opt == "-s":
+      if opt in ('-s', '--server'):
           return "server"
-      if opt == "-c":
+      if opt in ('-c', '--client'):
           return "client"
       
 def checkServerOpts():
