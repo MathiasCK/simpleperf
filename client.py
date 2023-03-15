@@ -1,6 +1,7 @@
 from socket import socket, AF_INET, SOCK_STREAM
 from utils import utils
 from time import time
+import json
 
 def Main():
     ip, port, duration = utils.checkClientOpts()
@@ -26,8 +27,9 @@ def Main():
 
     client_sd.sendall(b"BYE")
 
-    response = client_sd.recv(1024).decode('utf-8')
-    print(response)
+    results = json.loads(client_sd.recv(1024).decode('utf-8'))
+    
+    utils.printResults(results)
 
     client_sd.close()
 

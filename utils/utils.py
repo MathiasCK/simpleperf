@@ -57,7 +57,7 @@ def checkClientOpts():
     global port
     port = "8088"
     global time
-    time = 25
+    time = 10
 
     for opt, arg in opts:
       if opt in ('-I', '--serverip'):
@@ -69,3 +69,8 @@ def checkClientOpts():
     
 
     return ip, port, time
+
+
+def printResults(results):
+    print("{:<20} {:<15} {:<15} {:<15}".format('ID','Interval','Recieved','Rate'))
+    print("{:<20} {:<15} {:<15} {:<15}".format(results.get("ip"),results.get("interval"),results.get("recieved"),results.get("bandwidth")))

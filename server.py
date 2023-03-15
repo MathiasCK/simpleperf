@@ -1,8 +1,8 @@
 from utils import utils
-from socket import socket, AF_INET, SOCK_STREAM, SOL_SOCKET, SO_REUSEADDR
+from socket import socket, AF_INET, SOCK_STREAM
 import threading
 import time
-import math
+import json
 
 server = socket(AF_INET, SOCK_STREAM)
 
@@ -20,17 +20,11 @@ def handleRequest(client, addr):
     bandwidth = "{:.2f}".format(int(total_received / elapsed_time / (1000 * 1000)))
     recieved = "{:.2f}".format(total_received / (1000 * 1000))
 
-    print(f"{addr[0]}:{addr[1]}")
-    print(recieved, bandwidth)
-
-    result = [ f"{addr[0]}:{addr[1]}", "0.0 - 10.0", recieved, bandwidth ]
-
-    print("{:<20} {:<15} {:<15} {:<15}".format('ID','Interval','Recieved','Rate'))
-    print("{:<20} {:<15} {:<15} {:<15}".format(f"{addr[0]}:{addr[1]}",'0.0 - 10.0',f"{recieved} MB",f"{bandwidth} Mbps"))
+    results = { "ip": f"{addr[0]}:{addr[1]}", "interval": "0.0 - 10.0", "recieved": recieved, "bandwidth": bandwidth }
     
+    utils.printResults(results)
 
-
-    client.sendall(str(result).encode('utf-8'))
+    client.sendall(json.dumps(results).encode('utf-8'))
     client.close()
 
 def Main():
