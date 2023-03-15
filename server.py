@@ -9,8 +9,10 @@ def handleRequest(sock):
 def Main():
     bind, port, format = utils.checkServerOpts()
     try:
-        SERVER_SOCK.bind((bind, int(port)))
-        print("Server is listening on port: " + str(port))
+        SERVER_SOCK.bind((bind, port))
+        print("---------------------------------------------")
+        print(f"A simpleperf server is listening on port {str(port)}")
+        print("---------------------------------------------")
         SERVER_SOCK.listen(1)
     except Exception as err:
         raise Exception(f"Bind failed: {repr(err)}")
