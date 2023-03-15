@@ -2,7 +2,7 @@ from sys import argv
 from getopt import getopt
 import re
 
-opts, args = getopt(argv[1:], "scb:p:f:", ["server", "client", "bind=", "port=", "format="])
+opts, args = getopt(argv[1:], "scI:t:i:P:n:b:p:f:", ["server", "client", "bind=", "port=", "format=", "serverip=", "time=", "interval=", "parallel", "num="])
 
 def checkMode():
     for opt, arg in opts:
@@ -12,6 +12,8 @@ def checkMode():
           return "client"
       
 def isValidIP(ip):
+    if str(ip) == 'localhost':
+       return
     isValid = re.match(r"[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}", ip)
     if str(isValid) == "None":
        raise SyntaxError("Please provide a valid IP address")
@@ -47,3 +49,23 @@ def checkServerOpts():
         format = arg
 
     return bind, port, format
+
+
+def checkClientOpts():
+    global ip
+    ip = "localhost"
+    global port
+    port = "8088"
+    global time
+    time = 25
+
+    for opt, arg in opts:
+      if opt in ('-I', '--serverip'):
+          isValidIP(arg)
+          ip = arg
+      if opt in ('-p', '--port'):
+          isValidPort(arg)
+          port = int(arg)
+    
+
+    return ip, port, time
