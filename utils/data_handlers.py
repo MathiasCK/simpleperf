@@ -36,7 +36,9 @@ def handleClientData(start_time, total_received, addr, format, client):
     elapsed_time = time.time() - start_time
     bandwidth = "{:.2f}".format(int(total_received / elapsed_time / (1000 * 1000)))
     recieved = "{:.2f}".format(total_received)
-    results = { "ip": f"{addr[0]}:{addr[1]}", "interval": "0.0 - 10.0", "recieved": recieved, "bandwidth": f"{bandwidth} Mbps" }
+    
+    elapsed_time = "{:.1f}".format(elapsed_time)
+    results = { "ip": f"{addr[0]}:{addr[1]}", "interval": f"0.0 - {elapsed_time}", "recieved": recieved, "bandwidth": f"{bandwidth} Mbps" }
 
     utils.printResults(results, format)
     client.sendall(b"ACK/BYE")
