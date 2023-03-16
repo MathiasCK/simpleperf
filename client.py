@@ -20,7 +20,7 @@ def execute(client_sd, num, interval, duration, format):
         # If --num flag is provided
         if num is not None:
             # see data_handlers.handleNumFlag()
-            bytes = data_handlers.handleNumFlag(num)
+            bytes = utils.handleNumFlag(num)
             # Overwirte default data
             data = b"x" * bytes
 
@@ -29,7 +29,7 @@ def execute(client_sd, num, interval, duration, format):
             # Start timer which executes data_handlers.printIntervalData every @interval
             # @client_sd -> client socket
             # @format -> format data should be rintet 
-            rt = timer.RepeatedTimer(interval, data_handlers.printItervalData, client_sd, format)
+            rt = timer.RepeatedTimer(interval, utils.printItervalData, client_sd, format)
             try:
                 # Send data every @interval seconds
                 data_handlers.sendData(data, interval, start_time, client_sd)

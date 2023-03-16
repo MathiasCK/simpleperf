@@ -1,6 +1,8 @@
 from sys import argv
 from getopt import getopt
 from . import responses, validators
+import re
+import json
 
 # Optional argumens provided on startup
 opts, args = getopt(argv[1:], "scI:t:i:P:n:b:p:f:", ["server", "client", "bind=", "port=", "format=", "serverip=", "time=", "interval=", "parallel", "num="])
@@ -108,6 +110,30 @@ def handleFormat(format, recieved):
     if format == "B":
        return f"{recieved} B"
 
+# Handle --num flag if provided
+# @num -> string (valid format ex. 1000MB)
+def handleNumFlag(num):
+    # Split num value into array with -> [number, value]
+    match = re.match(r"([0-999999]+)((?:MB|KB|B)$)", num, re.I)
+    if match:
+        items = match.groups()
+
+    # First part of string -> number
+    num = int(items[0])
+    # Second part of string -> string (MB/KB/B)
+    numFormat = items[1]
+    
+    # If format is MB divide by 1000000 to get bytes
+    if numFormat == 'MB':
+        return num * 1000000
+
+    # If format is KB divide by 1000 to get bytes
+    if numFormat == 'KB':
+        return num * 1000
+    
+    # Return bytes
+    return num
+
 # Print results
 # @results -> JSON object containing, ip address, interval, recieved data, and bandwidth
 def printResults(results, format):
@@ -118,3 +144,14 @@ def printResults(results, format):
     print("{:<20} {:<15} {:<15} {:<15}".format('ID','Interval','Recieved','Rate'))
     # Print values
     print("{:<20} {:<15} {:<15} {:<15}".format(results.get("ip"), results.get("interval"), recieved, results.get("bandwidth")))
+
+# Print data in intervals
+# @client_sd -> client socket
+# @format -> format to print data
+def printItervalData(client_sd, format):
+    # Send "Interval" to server indicating interval
+    client_sd.sendall(b"Interval")
+    # Print data recieved from server
+    results = json.loads(client_sd.recv(1024).decode('utf-8'))
+    # See printResults
+    printResults(results, format)
