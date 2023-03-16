@@ -104,11 +104,14 @@ def checkClientOpts():
 # @recieved -> Total data recieved in bytes
 def handleFormat(format, recieved):
     if format == 'MB':
-         return f"{float(recieved) / 1000000} MB"
+        recieved = "{:.2f}".format(float(recieved / 1000000))
+        return f"{float(recieved)} MB"
     if format == "KB":
-       return f"{float(recieved) / 1000} KB"
-    if format == "B":
-       return f"{recieved} B"
+       recieved = "{:.2f}".format(float(recieved / 1000))
+       return f"{float(recieved)} KB"
+    
+    recieved = "{:.2f}".format(float(recieved))
+    return f"{recieved} B"
 
 # Handle --num flag if provided
 # @num -> string (valid format ex. 1000MB)
@@ -134,14 +137,17 @@ def handleNumFlag(num):
     # Return bytes
     return num
 
+# Print data header
+def printHeader():
+    # Print header
+    print("{:<20} {:<15} {:<15} {:<15}".format('ID','Interval','Recieved','Rate'))
+
 # Print results
 # @results -> JSON object containing, ip address, interval, recieved data, and bandwidth
 def printResults(results, format):
     # See handleFormat()
     recieved = handleFormat(format, results.get("recieved"))
 
-    # Print header
-    print("{:<20} {:<15} {:<15} {:<15}".format('ID','Interval','Recieved','Rate'))
     # Print values
     print("{:<20} {:<15} {:<15} {:<15}".format(results.get("ip"), results.get("interval"), recieved, results.get("bandwidth")))
 

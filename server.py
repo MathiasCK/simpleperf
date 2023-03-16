@@ -59,6 +59,7 @@ def handleClient(client, addr, format):
         responses.connectionError(err)
     # Exception handling
     except Exception as err:
+        client.close()
         responses.err(err)
 
 def Main():

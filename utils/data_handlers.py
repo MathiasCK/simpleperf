@@ -24,6 +24,8 @@ def sendACK(client_sd, format):
 
     # If ACK is recieved print data
     if ack == "ACK/BYE":
+        # See utils.printHeader()
+        utils.printHeader()
         # Recieve data from server
         results = json.loads(client_sd.recv(1024).decode('utf-8'))
         # See -> utils printResults()
@@ -49,17 +51,17 @@ def sendIntervalACK(client_sd):
 # @format -> Format data should be printed
 # @client -> client socket connection
 def handleClientData(start_time, total_received, addr, format, client):
+    # See utils.printHeader()
+    utils.printHeader()
     # Time since start of transer
     elapsed_time = time.time() - start_time
     # Calculate bandwidth
     bandwidth = "{:.2f}".format(int(total_received / elapsed_time / (1000 * 1000)))
-    # Format total bytes recieved
-    recieved = "{:.2f}".format(total_received)
     
     # Format elapsed_time
     elapsed_time = "{:.1f}".format(elapsed_time)
     # Make JSON object from data recieved
-    results = { "ip": f"{addr[0]}:{addr[1]}", "interval": f"0.0 - {elapsed_time}", "recieved": recieved, "bandwidth": f"{bandwidth} Mbps" }
+    results = { "ip": f"{addr[0]}:{addr[1]}", "interval": f"0.0 - {elapsed_time}", "recieved": total_received, "bandwidth": f"{bandwidth} Mbps" }
 
     # Print results on server -> see utils.printResults()
     utils.printResults(results, format)
@@ -76,14 +78,17 @@ def handleClientData(start_time, total_received, addr, format, client):
 # @i -> start time in interval
 # @diff -> end time in interval
 def handleClientIntervalData(start_time, total_received, addr, format, client, i, diff):
+    # Only print header if i = 0.0
+    if i == 0.0:
+        # See utils.printHeader()
+        utils.printHeader()
     # Time since start of transer
     elapsed_time = time.time() - start_time
     # Calculate bandwidth
     bandwidth = "{:.2f}".format(int(total_received / elapsed_time / (1000 * 1000)))
-    # Format total bytes recieved
-    recieved = "{:.2f}".format(total_received)
+
     # Make JSON object from data recieved
-    results = { "ip": f"{addr[0]}:{addr[1]}", "interval": f"{i} - {diff}", "recieved": recieved, "bandwidth": f"{bandwidth} Mbps" }
+    results = { "ip": f"{addr[0]}:{addr[1]}", "interval": f"{i} - {diff}", "recieved": total_received, "bandwidth": f"{bandwidth} Mbps" }
 
     # Print results on server -> see utils.printResults()
     utils.printResults(results, format)

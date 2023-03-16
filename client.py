@@ -29,6 +29,7 @@ def execute(client_sd, num, interval, duration, format):
             # Start timer which executes data_handlers.printIntervalData every @interval
             # @client_sd -> client socket
             # @format -> format data should be rintet 
+            utils.printHeader()
             rt = timer.RepeatedTimer(interval, utils.printItervalData, client_sd, format)
             try:
                 # Send data every @interval seconds
