@@ -17,3 +17,6 @@ def keyBoardInterrupt():
 def connectionAbortedError():
     print("Connection aborted")
     exit()
+
+def syntaxError(msg):
+    raise SyntaxError(msg)

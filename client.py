@@ -33,7 +33,7 @@ def Main():
             results = json.loads(client_sd.recv(1024).decode('utf-8'))
             utils.printResults(results, format)
         else:
-            raise ConnectionError("Failed to recieve ACK from server")
+            responses.connectionError("Failed to recieve ACK from server")
 
         client_sd.close()
     except ConnectionAbortedError:
