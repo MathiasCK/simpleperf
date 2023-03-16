@@ -46,7 +46,7 @@ def checkServerOpts():
           port = int(arg)
       if opt in ('-f', '--format'):
         isValidFormat(arg)
-        format = arg
+        format = arg.upper()
 
     return bind, port, format
 
@@ -58,6 +58,8 @@ def checkClientOpts():
     port = "8088"
     global time
     time = 10
+    global format
+    format = "MB"
 
     for opt, arg in opts:
       if opt in ('-I', '--serverip'):
@@ -66,11 +68,23 @@ def checkClientOpts():
       if opt in ('-p', '--port'):
           isValidPort(arg)
           port = int(arg)
+      if opt in ('-f', '--format'):
+         isValidFormat(arg)
+         format = arg.upper()
     
 
-    return ip, port, time
+    return ip, port, time, format
 
+def handleFormat(format, recieved):
+    if format == 'MB':
+         return f"{float(recieved) / 1000000} MB"
+    if format == "KB":
+       return f"{float(recieved) / 1000} KB"
+    if format == "B":
+       return f"{recieved} B"
 
-def printResults(results):
+def printResults(results, format):
+    recieved = handleFormat(format, results.get("recieved"))
+    
     print("{:<20} {:<15} {:<15} {:<15}".format('ID','Interval','Recieved','Rate'))
-    print("{:<20} {:<15} {:<15} {:<15}".format(results.get("ip"),results.get("interval"),results.get("recieved"),results.get("bandwidth")))
+    print("{:<20} {:<15} {:<15} {:<15}".format(results.get("ip"), results.get("interval"), recieved, results.get("bandwidth")))

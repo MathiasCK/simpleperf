@@ -4,7 +4,7 @@ from time import time
 import json
 
 def Main():
-    ip, port, duration = utils.checkClientOpts()
+    ip, port, duration, format = utils.checkClientOpts()
     client_sd = socket(AF_INET, SOCK_STREAM)
 
     try:
@@ -29,7 +29,7 @@ def Main():
 
     results = json.loads(client_sd.recv(1024).decode('utf-8'))
     
-    utils.printResults(results)
+    utils.printResults(results, format)
 
     client_sd.close()
 

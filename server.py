@@ -6,7 +6,7 @@ import json
 
 server = socket(AF_INET, SOCK_STREAM)
 
-def handleRequest(client, addr):
+def handleRequest(client, addr, format):
     start_time = time.time()
     total_received = 0
     
@@ -18,11 +18,11 @@ def handleRequest(client, addr):
 
     elapsed_time = time.time() - start_time
     bandwidth = "{:.2f}".format(int(total_received / elapsed_time / (1000 * 1000)))
-    recieved = "{:.2f}".format(total_received / (1000 * 1000))
+    recieved = "{:.2f}".format(total_received)
 
-    results = { "ip": f"{addr[0]}:{addr[1]}", "interval": "0.0 - 10.0", "recieved": recieved, "bandwidth": bandwidth }
-    
-    utils.printResults(results)
+    results = { "ip": f"{addr[0]}:{addr[1]}", "interval": "0.0 - 10.0", "recieved": recieved, "bandwidth": f"{bandwidth} Mbps" }
+
+    utils.printResults(results, format)
 
     client.sendall(json.dumps(results).encode('utf-8'))
     client.close()
@@ -43,7 +43,7 @@ def Main():
             client, addr = server.accept()
             print(f"A simpleperf client <{addr[0]}:{addr[1]}> is connected with <{bind}:{port}>")
 
-            threading.Thread(target=handleRequest, args=(client, addr)).start()
+            threading.Thread(target=handleRequest, args=(client, addr, format)).start()
     except KeyboardInterrupt:
         print("Stopped by Ctrl+C")
     finally:
