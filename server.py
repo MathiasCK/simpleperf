@@ -1,10 +1,23 @@
 from utils import utils, responses
-from socket import socket, AF_INET, SOCK_STREAM
+from socket import socket, AF_INET, SOCK_STREAM, SOL_SOCKET, SO_REUSEADDR
 import threading
 import time
 import json
 
 server = socket(AF_INET, SOCK_STREAM)
+server.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
+
+def handleData(start_time, total_received, addr, format, client):
+    elapsed_time = time.time() - start_time
+    bandwidth = "{:.2f}".format(int(total_received / elapsed_time / (1000 * 1000)))
+    recieved = "{:.2f}".format(total_received)
+
+    results = { "ip": f"{addr[0]}:{addr[1]}", "interval": "0.0 - 10.0", "recieved": recieved, "bandwidth": f"{bandwidth} Mbps" }
+
+    utils.printResults(results, format)
+
+    client.sendall(b"ACK/BYE")
+    client.sendall(json.dumps(results).encode('utf-8'))
 
 def handleRequest(client, addr, format):
     try:
@@ -17,16 +30,9 @@ def handleRequest(client, addr, format):
                 break
             total_received += len(data)
 
-        elapsed_time = time.time() - start_time
-        bandwidth = "{:.2f}".format(int(total_received / elapsed_time / (1000 * 1000)))
-        recieved = "{:.2f}".format(total_received)
-
-        results = { "ip": f"{addr[0]}:{addr[1]}", "interval": "0.0 - 10.0", "recieved": recieved, "bandwidth": f"{bandwidth} Mbps" }
-
-        utils.printResults(results, format)
-
-        client.sendall(b"ACK/BYE")
-        client.sendall(json.dumps(results).encode('utf-8'))
+        handleData(start_time, total_received, addr, format, client)
+        
+        
         client.close()
     except ConnectionAbortedError:
         responses.connectionAbortedError()
