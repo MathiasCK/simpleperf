@@ -98,7 +98,7 @@ def checkClientOpts():
 
 # Format total amount of data recieved
 # @format -> MB/KB/B
-# @recieved -> Total data recieved (default MB)
+# @recieved -> Total data recieved in bytes
 def handleFormat(format, recieved):
     if format == 'MB':
          return f"{float(recieved) / 1000000} MB"
