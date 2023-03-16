@@ -3,7 +3,7 @@ from utils import utils, responses, timer, data_handlers
 import time
 
 def Main():
-    ip, port, duration, format, interval, paralell = utils.checkClientOpts()
+    ip, port, duration, format, interval, paralell, num = utils.checkClientOpts()
     client_sd = socket(AF_INET, SOCK_STREAM)
 
     try:

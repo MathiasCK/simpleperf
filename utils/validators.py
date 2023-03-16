@@ -35,3 +35,8 @@ def isValidInterval(interval, time):
 def isValidParallel(value):
    if value < 1 or value > 5:
       responses.syntaxError("Parallel value must be in the rage 1-5")
+
+def isValidByteNum(value):
+   isValid = re.match(r"^[0-999999]+(?:MB|KB|B)$", value, re.IGNORECASE)
+   if str(isValid) == "None":
+       responses.syntaxError("Number (0-999999) followed by a valid format (MB/KB/B)")

@@ -57,6 +57,8 @@ def checkClientOpts():
     interval = None
     global parallel
     parallel = 1
+    global num
+    num = None
 
     # Check default values should be overwritten
     for opt, arg in opts:
@@ -86,8 +88,13 @@ def checkClientOpts():
             # Validate parallel
             validators.isValidParallel(arg)
             parallel = arg
+        if opt in ('-n', '--num'):
+            # Validate num
+            validators.isValidByteNum(arg)
+            num = arg
 
-    return ip, port, time, format, interval, parallel
+
+    return ip, port, time, format, interval, parallel, num
 
 # Format total amount of data recieved
 # @format -> MB/KB/B
