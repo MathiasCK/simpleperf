@@ -11,8 +11,7 @@ def handleClient(client, addr, format):
     try:
         start_time = time.time()
         total_received = 0
-        global i
-        i = 0
+
         while True:
             data = client.recv(1000)
             if not data or data == b"BYE":
