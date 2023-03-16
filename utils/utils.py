@@ -86,6 +86,7 @@ def checkClientOpts():
             interval = arg
         if opt in ('-P', '--parallel'):
             # Validate parallel
+            arg = int(arg)
             validators.isValidParallel(arg)
             parallel = arg
         if opt in ('-n', '--num'):

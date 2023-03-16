@@ -2,24 +2,10 @@ from socket import socket, AF_INET, SOCK_STREAM
 from utils import utils, responses, timer, data_handlers
 import time
 
-def Main():
-    ip, port, duration, format, interval, paralell, num = utils.checkClientOpts()
-    client_sd = socket(AF_INET, SOCK_STREAM)
-
-    global data
-    data = b"x" * 1000
-
+def execute(client_sd, num, interval, duration, format):
     try:
-        client_sd.connect((ip, int(port)))
-        print("-------------------------------------------------------------")
-        print(f"A simpleperf client connected to server {ip}, port {port}")
-        print("-------------------------------------------------------------")
-    except ConnectionRefusedError as err:
-        responses.connectionRefused(err)
-    except Exception as err:
-        responses.err(err)
-
-    try:
+        global data
+        data = b"x" * 1000
         start_time = time.time()
         
         if num is not None:
@@ -44,6 +30,46 @@ def Main():
         responses.connectionError(err)
     except Exception as err:
         responses.err(err)
+
+def handleParalellConnections(paralell, ip, port, num, interval, duration, format):
+
+    client_sd1 = socket(AF_INET, SOCK_STREAM)
+    handleConnection(client_sd1, ip, port, num, interval, duration, format)
+
+    if 2 <= paralell:
+        client_sd2 = socket(AF_INET, SOCK_STREAM)
+        handleConnection(client_sd2, ip, port, num, interval, duration, format)
+    if 3 <= paralell:
+        client_sd3 = socket(AF_INET, SOCK_STREAM)
+        handleConnection(client_sd3, ip, port, num, interval, duration, format)
+    if 4 <= paralell:
+        client_sd4 = socket(AF_INET, SOCK_STREAM)
+        handleConnection(client_sd4, ip, port, num, interval, duration, format)
+    if 5 == paralell:    
+        client_sd5 = socket(AF_INET, SOCK_STREAM)
+        handleConnection(client_sd5, ip, port, num, interval, duration, format)
+
+def handleConnection(client_sd, ip, port, num, interval, duration, format):
+    try:
+        client_sd.connect((ip, int(port)))
+        print("-------------------------------------------------------------")
+        print(f"A simpleperf client connected to server {ip}, port {port}")
+        print("-------------------------------------------------------------")
+    except ConnectionRefusedError as err:
+        responses.connectionRefused(err)
+    except Exception as err:
+        responses.err(err)
+    
+    execute(client_sd, num, interval, duration, format)
+
+def Main():
+    ip, port, duration, format, interval, paralell, num = utils.checkClientOpts()
+    
+    if paralell == 1:
+        client_sd = socket(AF_INET, SOCK_STREAM)
+        handleConnection(client_sd, ip, port, num, interval, duration, format)
+    else:
+        handleParalellConnections(paralell, ip, port, num, interval, duration, format)
 
 if __name__ == "__main__":
     Main()
