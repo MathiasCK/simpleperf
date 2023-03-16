@@ -24,6 +24,7 @@ def handleRequest(client, addr, format):
 
     utils.printResults(results, format)
 
+    client.sendall(b"ACK/BYE")
     client.sendall(json.dumps(results).encode('utf-8'))
     client.close()
 

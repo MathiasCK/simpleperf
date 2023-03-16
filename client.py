@@ -17,21 +17,27 @@ def Main():
         exit()
 
 
-    start_time = time()
-    total_sent = 0
+    try:
+        start_time = time()
+        total_sent = 0
 
-    while time() - start_time < duration:
-        data = b"x" * 1000
-        client_sd.sendall(data)
-        total_sent += len(data)
+        while time() - start_time < duration:
+            data = b"x" * 1000
+            client_sd.sendall(data)
+            total_sent += len(data)
 
-    client_sd.sendall(b"BYE")
+        client_sd.sendall(b"BYE")
+        ack = client_sd.recv(1024).decode('utf-8')
 
-    results = json.loads(client_sd.recv(1024).decode('utf-8'))
-    
-    utils.printResults(results, format)
+        if ack == b"ACK/BYE":
+            results = json.loads(client_sd.recv(1024).decode('utf-8'))
+            utils.printResults(results, format)
+        else:
+            raise Exception("Failed to recieve ACK from server")
 
-    client_sd.close()
+        client_sd.close()
+    except Exception as err:
+        print(f"There was an error: {repr(err)}")
 
 if __name__ == "__main__":
     Main()
