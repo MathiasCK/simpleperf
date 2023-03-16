@@ -2,16 +2,14 @@ from utils import utils
 import time
 import json
 from . import responses
-
-global data
-data = b"x" * 1000
+import re
 
 def printItervalData(client_sd, format):
     client_sd.sendall(b"Interval")
     results = json.loads(client_sd.recv(1024).decode('utf-8'))
     utils.printResults(results, format)
 
-def sendData(duration, start_time, client_sd):
+def sendData(data, duration, start_time, client_sd):
     while time.time() - start_time < duration:
         client_sd.sendall(data)
     
@@ -52,3 +50,18 @@ def handleClientIntervalData(start_time, total_received, addr, format, client, i
 
     utils.printResults(results, format)
     client.sendall(json.dumps(results).encode('utf-8'))
+
+def handleNumFlag(num):
+    match = re.match(r"([0-999999]+)((?:MB|KB|B)$)", num, re.I)
+    if match:
+        items = match.groups()
+    num = int(items[0])
+    numFormat = items[1]
+    
+    if numFormat == 'MB':
+        return num * 1000000
+
+    if numFormat == 'KB':
+        return num * 1000
+    
+    return num

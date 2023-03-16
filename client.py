@@ -6,6 +6,9 @@ def Main():
     ip, port, duration, format, interval, paralell, num = utils.checkClientOpts()
     client_sd = socket(AF_INET, SOCK_STREAM)
 
+    global data
+    data = b"x" * 1000
+
     try:
         client_sd.connect((ip, int(port)))
         print("-------------------------------------------------------------")
@@ -18,17 +21,21 @@ def Main():
 
     try:
         start_time = time.time()
+        
+        if num is not None:
+            bytes = data_handlers.handleNumFlag(num)
+            data = b"x" * bytes
 
         if interval is not None:
             rt = timer.RepeatedTimer(interval, data_handlers.printItervalData, client_sd, format)
             try:
-                data_handlers.sendData(interval, start_time, client_sd)
+                data_handlers.sendData(data, interval, start_time, client_sd)
                 time.sleep(duration)
             finally:
                 rt.stop()
                 data_handlers.sendIntervalACK(client_sd)
         else:
-            data_handlers.sendData(duration, start_time, client_sd)
+            data_handlers.sendData(data, duration, start_time, client_sd)
             data_handlers.sendACK(client_sd, format)
                
     except ConnectionAbortedError:
