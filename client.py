@@ -4,7 +4,7 @@ from time import time
 import json
 
 def Main():
-    ip, port, duration, format = utils.checkClientOpts()
+    ip, port, duration, format, interval = utils.checkClientOpts()
     client_sd = socket(AF_INET, SOCK_STREAM)
 
     try:
@@ -29,7 +29,7 @@ def Main():
         client_sd.sendall(b"BYE")
         ack = client_sd.recv(1024).decode('utf-8')
 
-        if ack == b"ACK/BYE":
+        if ack == "ACK/BYE":
             results = json.loads(client_sd.recv(1024).decode('utf-8'))
             utils.printResults(results, format)
         else:
