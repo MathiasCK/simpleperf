@@ -24,7 +24,7 @@ def handleClient(client, addr, format):
             total_received += len(data)
             if data == b"Interval":
                 current_time = time.time()
-                diff = float("{:.2f}".format(current_time - start_time))
+                diff = float("{:.1f}".format(current_time - start_time))
                 data_handlers.handleClientIntervalData(start_time, total_received, addr, format, client, i, diff)
                 i += (diff - i)
         
