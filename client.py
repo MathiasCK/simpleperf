@@ -31,25 +31,25 @@ def execute(client_sd, num, interval, duration, format):
     except Exception as err:
         responses.err(err)
 
-def handleParalellConnections(paralell, ip, port, num, interval, duration, format):
+def handleConnection(paralell, ip, port, num, interval, duration, format):
 
     client_sd1 = socket(AF_INET, SOCK_STREAM)
-    handleConnection(client_sd1, ip, port, num, interval, duration, format)
+    connect(client_sd1, ip, port, num, interval, duration, format)
 
     if 2 <= paralell:
         client_sd2 = socket(AF_INET, SOCK_STREAM)
-        handleConnection(client_sd2, ip, port, num, interval, duration, format)
+        connect(client_sd2, ip, port, num, interval, duration, format)
     if 3 <= paralell:
         client_sd3 = socket(AF_INET, SOCK_STREAM)
-        handleConnection(client_sd3, ip, port, num, interval, duration, format)
+        connect(client_sd3, ip, port, num, interval, duration, format)
     if 4 <= paralell:
         client_sd4 = socket(AF_INET, SOCK_STREAM)
-        handleConnection(client_sd4, ip, port, num, interval, duration, format)
+        connect(client_sd4, ip, port, num, interval, duration, format)
     if 5 == paralell:    
         client_sd5 = socket(AF_INET, SOCK_STREAM)
-        handleConnection(client_sd5, ip, port, num, interval, duration, format)
+        connect(client_sd5, ip, port, num, interval, duration, format)
 
-def handleConnection(client_sd, ip, port, num, interval, duration, format):
+def connect(client_sd, ip, port, num, interval, duration, format):
     try:
         client_sd.connect((ip, int(port)))
         print("-------------------------------------------------------------")
@@ -65,11 +65,7 @@ def handleConnection(client_sd, ip, port, num, interval, duration, format):
 def Main():
     ip, port, duration, format, interval, paralell, num = utils.checkClientOpts()
     
-    if paralell == 1:
-        client_sd = socket(AF_INET, SOCK_STREAM)
-        handleConnection(client_sd, ip, port, num, interval, duration, format)
-    else:
-        handleParalellConnections(paralell, ip, port, num, interval, duration, format)
+    handleConnection(paralell, ip, port, num, interval, duration, format)
 
 if __name__ == "__main__":
     Main()
