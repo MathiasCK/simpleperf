@@ -16,7 +16,6 @@ def sendData(data, duration, start_time, client_sd):
 def sendACK(client_sd, format):
     client_sd.sendall(b"BYE")
     ack = client_sd.recv(1024).decode('utf-8')
-    print(ack)
 
     if ack == "ACK/BYE":
         results = json.loads(client_sd.recv(1024).decode('utf-8'))
