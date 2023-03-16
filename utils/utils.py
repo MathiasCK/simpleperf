@@ -65,7 +65,7 @@ def checkClientOpts():
     global format
     format = "MB"
     global interval
-    interval = None
+    interval = 0
 
     for opt, arg in opts:
         if opt in ('-I', '--serverip'):

@@ -1,7 +1,33 @@
 from socket import socket, AF_INET, SOCK_STREAM
 from utils import utils, responses
-from time import time
+import time
 import json
+
+def sendDataWithIntervals(duration, interval, client_sd, format):
+    while duration > interval:
+            data = b"x" * 1000
+            client_sd.sendall(data)
+            client_sd.sendall(b"Interval finished")
+
+            results = json.loads(client_sd.recv(1024).decode('utf-8'))
+            utils.printResults(results, format)
+            duration -= interval
+
+def sendDataWithoutIntervals(duration, start_time, client_sd, format):
+    while time.time() - start_time < duration:
+        data = b"x" * 1000
+        client_sd.sendall(data)
+    
+    client_sd.sendall(b"BYE")
+    ack = client_sd.recv(1024).decode('utf-8')
+
+    if ack == "ACK/BYE":
+        results = json.loads(client_sd.recv(1024).decode('utf-8'))
+        utils.printResults(results, format)
+    else:
+        responses.connectionError("Failed to recieve ACK from server")
+
+    client_sd.close()
 
 def Main():
     ip, port, duration, format, interval = utils.checkClientOpts()
@@ -18,24 +44,13 @@ def Main():
         responses.err(err)
 
     try:
-        start_time = time()
-        total_sent = 0
+        start_time = time.time()
 
-        while time() - start_time < duration:
-            data = b"x" * 1000
-            client_sd.sendall(data)
-            total_sent += len(data)
-
-        client_sd.sendall(b"BYE")
-        ack = client_sd.recv(1024).decode('utf-8')
-
-        if ack == "ACK/BYE":
-            results = json.loads(client_sd.recv(1024).decode('utf-8'))
-            utils.printResults(results, format)
-        else:
-            responses.connectionError("Failed to recieve ACK from server")
-
-        client_sd.close()
+        if interval > 0:
+            return sendDataWithIntervals(duration, interval, client_sd, format)
+        
+        sendDataWithoutIntervals(duration, start_time, client_sd, format)
+               
     except ConnectionAbortedError:
         responses.connectionAbortedError()
     except ConnectionError as err:
