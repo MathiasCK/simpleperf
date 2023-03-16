@@ -1,5 +1,5 @@
 from socket import socket, AF_INET, SOCK_STREAM
-from utils import utils
+from utils import utils, responses
 from time import time
 import json
 
@@ -12,10 +12,10 @@ def Main():
         print("-------------------------------------------------------------")
         print(f"A simpleperf client connected to server {ip}, port {port}")
         print("-------------------------------------------------------------")
+    except ConnectionRefusedError as err:
+        responses.connectionRefused(err)
     except Exception as err:
-        print(f"Could not connect to server: {repr(err)}")
-        exit()
-
+        responses.err(err)
 
     try:
         start_time = time()
@@ -33,11 +33,15 @@ def Main():
             results = json.loads(client_sd.recv(1024).decode('utf-8'))
             utils.printResults(results, format)
         else:
-            raise Exception("Failed to recieve ACK from server")
+            raise ConnectionError("Failed to recieve ACK from server")
 
         client_sd.close()
+    except ConnectionAbortedError:
+        responses.connectionAbortedError()
+    except ConnectionError as err:
+        responses.connectionError(err)
     except Exception as err:
-        print(f"There was an error: {repr(err)}")
+        responses.err(err)
 
 if __name__ == "__main__":
     Main()
