@@ -45,7 +45,7 @@ def checkClientOpts():
     global interval
     interval = None
     global parallel
-    parallel = None
+    parallel = 1
 
     for opt, arg in opts:
         if opt in ('-I', '--serverip'):

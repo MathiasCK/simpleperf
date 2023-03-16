@@ -20,7 +20,6 @@ def Main():
         start_time = time.time()
 
         if interval is not None:
-            print(True)
             rt = timer.RepeatedTimer(interval, data_handlers.printItervalData, client_sd, format)
             try:
                 data_handlers.sendData(interval, start_time, client_sd)
