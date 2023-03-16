@@ -64,6 +64,10 @@ def checkClientOpts():
           # Validate ip address
           validators.isValidIP(arg)
           ip = arg
+        if opt in ('-t', '--time'):
+          # Validate ip address
+          #validators.isValidIP(arg)
+          time = int(arg)
         if opt in ('-p', '--port'):
             # Validate port
             arg = int(arg)
