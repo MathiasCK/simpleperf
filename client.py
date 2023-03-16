@@ -1,33 +1,6 @@
 from socket import socket, AF_INET, SOCK_STREAM
-from utils import utils, responses
+from utils import utils, responses, timer, data_handlers
 import time
-import json
-
-def sendDataWithIntervals(duration, interval, client_sd, format):
-    while duration > interval:
-            data = b"x" * 1000
-            client_sd.sendall(data)
-            client_sd.sendall(b"Interval finished")
-
-            results = json.loads(client_sd.recv(1024).decode('utf-8'))
-            utils.printResults(results, format)
-            duration -= interval
-
-def sendDataWithoutIntervals(duration, start_time, client_sd, format):
-    while time.time() - start_time < duration:
-        data = b"x" * 1000
-        client_sd.sendall(data)
-    
-    client_sd.sendall(b"BYE")
-    ack = client_sd.recv(1024).decode('utf-8')
-
-    if ack == "ACK/BYE":
-        results = json.loads(client_sd.recv(1024).decode('utf-8'))
-        utils.printResults(results, format)
-    else:
-        responses.connectionError("Failed to recieve ACK from server")
-
-    client_sd.close()
 
 def Main():
     ip, port, duration, format, interval = utils.checkClientOpts()
@@ -47,9 +20,16 @@ def Main():
         start_time = time.time()
 
         if interval > 0:
-            return sendDataWithIntervals(duration, interval, client_sd, format)
-        
-        sendDataWithoutIntervals(duration, start_time, client_sd, format)
+            rt = timer.RepeatedTimer(interval, data_handlers.printItervalData, client_sd, format)
+            try:
+                data_handlers.sendData(interval, start_time, client_sd)
+                time.sleep(duration)
+            finally:
+                rt.stop()
+                data_handlers.sendACK(client_sd, format)
+        else:
+            data_handlers.sendData(duration, start_time, client_sd)
+            data_handlers.sendACK(client_sd, format)
                
     except ConnectionAbortedError:
         responses.connectionAbortedError()

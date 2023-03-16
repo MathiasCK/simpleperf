@@ -2,36 +2,12 @@ from utils import utils, responses
 from socket import socket, AF_INET, SOCK_STREAM, SOL_SOCKET, SO_REUSEADDR
 import threading
 import time
-import json
+from utils import data_handlers
 
 server = socket(AF_INET, SOCK_STREAM)
 server.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
 
-def handleIntervalData(start_time, total_received, addr, format, client):
-    elapsed_time = time.time() - start_time
-    #bandwidth = "{:.2f}".format(int(total_received / elapsed_time / (1000 * 1000)))
-    bandwidth = int(total_received / elapsed_time / (1000 * 1000))
-    recieved = "{:.2f}".format(total_received)
-
-    results = { "ip": f"{addr[0]}:{addr[1]}", "interval": "0.0 - 10.0", "recieved": recieved, "bandwidth": f"{bandwidth} Mbps" }
-
-    utils.printResults(results, format)
-
-    #client.sendall(b"ACK/BYE")
-    client.sendall(json.dumps(results).encode('utf-8'))
-
-def handleData(start_time, total_received, addr, format, client):
-    elapsed_time = time.time() - start_time
-    bandwidth = "{:.2f}".format(int(total_received / elapsed_time / (1000 * 1000)))
-    recieved = "{:.2f}".format(total_received)
-    results = { "ip": f"{addr[0]}:{addr[1]}", "interval": "0.0 - 10.0", "recieved": recieved, "bandwidth": f"{bandwidth} Mbps" }
-
-    utils.printResults(results, format)
-
-    client.sendall(b"ACK/BYE")
-    client.sendall(json.dumps(results).encode('utf-8'))
-
-def handleRequest(client, addr, format):
+def handleClient(client, addr, format):
     try:
         start_time = time.time()
         total_received = 0
@@ -40,12 +16,12 @@ def handleRequest(client, addr, format):
         while True:
             data = client.recv(1000)
             if not data or data == b"BYE":
+                data_handlers.handleClientData(start_time, total_received, addr, format, client)
                 break
             total_received += len(data)
             if data == b"Interval finished":
-                handleIntervalData(start_time, total_received, addr, format, client)
-
-        handleData(start_time, total_received, addr, format, client)
+                time.sleep(1)
+                data_handlers.handleClientData(start_time, total_received, addr, format, client)
         
         client.close()
     except ConnectionAbortedError:
@@ -73,7 +49,7 @@ def Main():
             client, addr = server.accept()
             print(f"A simpleperf client <{addr[0]}:{addr[1]}> is connected with <{bind}:{port}>")
 
-            threading.Thread(target=handleRequest, args=(client, addr, format)).start()
+            threading.Thread(target=handleClient, args=(client, addr, format)).start()
     except KeyboardInterrupt:
         responses.keyBoardInterrupt()
     except Exception as err:
