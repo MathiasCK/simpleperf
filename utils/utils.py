@@ -43,7 +43,9 @@ def checkClientOpts():
     global format
     format = "MB"
     global interval
-    interval = 0
+    interval = None
+    global parallel
+    parallel = None
 
     for opt, arg in opts:
         if opt in ('-I', '--serverip'):
@@ -60,8 +62,11 @@ def checkClientOpts():
             arg = int(arg)
             validators.isValidInterval(arg, time)
             interval = arg
+        if opt in ('-P', '--parallel'):
+            validators.isValidParallel(arg)
+            parallel = arg
 
-    return ip, port, time, format, interval
+    return ip, port, time, format, interval, parallel
 
 def handleFormat(format, recieved):
     if format == 'MB':

@@ -3,7 +3,7 @@ from utils import utils, responses, timer, data_handlers
 import time
 
 def Main():
-    ip, port, duration, format, interval = utils.checkClientOpts()
+    ip, port, duration, format, interval, paralell = utils.checkClientOpts()
     client_sd = socket(AF_INET, SOCK_STREAM)
 
     try:
@@ -19,7 +19,8 @@ def Main():
     try:
         start_time = time.time()
 
-        if interval > 0:
+        if interval is not None:
+            print(True)
             rt = timer.RepeatedTimer(interval, data_handlers.printItervalData, client_sd, format)
             try:
                 data_handlers.sendData(interval, start_time, client_sd)

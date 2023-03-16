@@ -19,4 +19,8 @@ def isValidFormat(format):
 
 def isValidInterval(interval, time):
     if interval > time:
-      return responses.syntaxError("Interval cannot be greater than -t flag (default 10 seconds)")
+      responses.syntaxError("Interval cannot be greater than -t flag (default 10 seconds)")
+
+def isValidParallel(value):
+   if value < 1 or value > 5:
+      responses.syntaxError("Parallel value must be in the rage 1-5")
