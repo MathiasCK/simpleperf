@@ -26,7 +26,7 @@ def Main():
                 time.sleep(duration)
             finally:
                 rt.stop()
-                data_handlers.sendACK(client_sd, format)
+                data_handlers.sendIntervalACK(client_sd)
         else:
             data_handlers.sendData(duration, start_time, client_sd)
             data_handlers.sendACK(client_sd, format)

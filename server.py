@@ -11,16 +11,22 @@ def handleClient(client, addr, format):
     try:
         start_time = time.time()
         total_received = 0
+        global i
+        i = 0.0
 
         while True:
             data = client.recv(1000)
             if not data or data == b"BYE":
                 data_handlers.handleClientData(start_time, total_received, addr, format, client)
                 break
-            total_received += len(data)
             if data == b"Interval finished":
-                time.sleep(1)
-                data_handlers.handleClientData(start_time, total_received, addr, format, client)
+                break
+            total_received += len(data)
+            if data == b"Interval":
+                current_time = time.time()
+                diff = float("{:.2f}".format(current_time - start_time))
+                data_handlers.handleClientIntervalData(start_time, total_received, addr, format, client, i, diff)
+                i += (diff - i)
         
         client.close()
     except ConnectionAbortedError:
