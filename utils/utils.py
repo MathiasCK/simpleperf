@@ -29,7 +29,11 @@ def isValidFormat(format):
    isValid = re.match(r"^(?:MB|KB|B)$", format, re.IGNORECASE)
    if str(isValid) == "None":
        responses.syntaxError("Please provide a valid format (MB/KB/B)")
-      
+
+def isValidInterval(interval, time):
+    if interval > time:
+      return responses.syntaxError("Interval cannot be greater than -t flag (default 10 seconds)")
+
 def checkServerOpts():
     global bind
     bind = "localhost"
@@ -51,7 +55,6 @@ def checkServerOpts():
 
     return bind, port, format
 
-
 def checkClientOpts():
     global ip
     ip = "localhost"
@@ -61,20 +64,26 @@ def checkClientOpts():
     time = 10
     global format
     format = "MB"
+    global interval
+    interval = None
 
     for opt, arg in opts:
-      if opt in ('-I', '--serverip'):
+        if opt in ('-I', '--serverip'):
           isValidIP(arg)
           ip = arg
-      if opt in ('-p', '--port'):
-          isValidPort(arg)
-          port = int(arg)
-      if opt in ('-f', '--format'):
-         isValidFormat(arg)
-         format = arg.upper()
-    
+        if opt in ('-p', '--port'):
+            arg = int(arg)
+            isValidPort(arg)
+            port = arg
+        if opt in ('-f', '--format'):
+            isValidFormat(arg)
+            format = arg.upper()
+        if opt in ('-i', '--interval'):
+            arg = int(arg)
+            isValidInterval(arg, time)
+            interval = arg
 
-    return ip, port, time, format
+    return ip, port, time, format, interval
 
 def handleFormat(format, recieved):
     if format == 'MB':
