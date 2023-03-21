@@ -88,8 +88,11 @@ def handleClientData(start_time, total_received, addr, format, client):
     # Format elapsed_time
     elapsed_time = "{:.1f}".format(elapsed_time)
     
-    # Make JSON object from data recieved
-    results = { "ip": f"{addr[0]}:{addr[1]}", "interval": f"0.0 - {elapsed_time}", "recieved": total_received, "bandwidth": f"{bandwidth} Mbps" }
+    # Format interval
+    interval = f"0.0 - {elapsed_time}"
+    
+    # See utils.makeJSONObj
+    results = utils.makeJSONObj(addr, interval, total_received, bandwidth)
 
     # Print results on server -> see utils.printResults()
     utils.printResults(results, format)
@@ -116,8 +119,11 @@ def printClientIntervalData(start_time, total_received, addr, format, client, i,
     # Calculate bandwidth
     bandwidth = "{:.2f}".format(int(total_received / interval_time / (1000 * 1000)))
 
-    # Make JSON object from data recieved
-    results = { "ip": f"{addr[0]}:{addr[1]}", "interval": f"{i} - {diff}", "recieved": total_received, "bandwidth": f"{bandwidth} Mbps" }
+    #Format interval 
+    interval = f"{i} - {diff}"
+
+    # See utils.makeJSONObj
+    results = utils.makeJSONObj(addr, interval, total_received, bandwidth)
 
     # Print results on server -> see utils.printResults()
     utils.printResults(results, format)

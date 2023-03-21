@@ -159,3 +159,11 @@ def printItervalData(client_sd, format):
     results = json.loads(client_sd.recv(1024).decode('utf-8'))
     # See printResults
     printResults(results, format)
+
+# Make JSON object from data recieved
+# @addr -> client ip address & port
+# @interval -> Total interval time
+# @total_received -> total amount of data received in bytes
+# @bandwidth -> calculated bandwidth
+def makeJSONObj(addr, interval, total_received, bandwidth):
+    return { "ip": f"{addr[0]}:{addr[1]}", "interval": interval, "recieved": total_received, "bandwidth": f"{bandwidth} Mbps" }
