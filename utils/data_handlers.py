@@ -13,7 +13,7 @@ def sendData(data, duration, start_time, client_sd):
         # Send data as long as duration valid
         client_sd.sendall(data)
 
-# Send data to server
+# Send data to server in interval
 # @data -> bytes (default 1000 bytes)
 # @interval -> Time in intervals data should be sent
 # @duration -> Total time data should be sent (in intervals)

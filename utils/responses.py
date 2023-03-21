@@ -8,7 +8,7 @@ def err(err):
 # Connection refused custom error
 # @err -> string
 def connectionRefused(err):
-    print(f"Feiled to connect: {repr(err)}")
+    print(f"Failed to connect: {repr(err)}")
     exit()
 
 # Connection custom error
