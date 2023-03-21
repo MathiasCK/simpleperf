@@ -82,10 +82,11 @@ def handleClientIntervalData(start_time, total_received, addr, format, client, i
     if i == 0.0:
         # See utils.printHeader()
         utils.printHeader()
+    
     # Time since start of transer
-    elapsed_time = time.time() - start_time
+    interval_time = time.time() - start_time - i
     # Calculate bandwidth
-    bandwidth = "{:.2f}".format(int(total_received / elapsed_time / (1000 * 1000)))
+    bandwidth = "{:.2f}".format(int(total_received / interval_time / (1000 * 1000)))
 
     # Make JSON object from data recieved
     results = { "ip": f"{addr[0]}:{addr[1]}", "interval": f"{i} - {diff}", "recieved": total_received, "bandwidth": f"{bandwidth} Mbps" }
