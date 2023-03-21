@@ -155,8 +155,6 @@ def printResults(results, format):
 # @client_sd -> client socket
 # @format -> format to print data
 def printItervalData(client_sd, format):
-    # Send "Interval" to server indicating interval
-    client_sd.sendall(b"Interval")
     # Print data recieved from server
     results = json.loads(client_sd.recv(1024).decode('utf-8'))
     # See printResults

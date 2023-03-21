@@ -13,6 +13,33 @@ def sendData(data, duration, start_time, client_sd):
         # Send data as long as duration valid
         client_sd.sendall(data)
 
+# Send data to server
+# @data -> bytes (default 1000 bytes)
+# @interval -> Time in intervals data should be sent
+# @duration -> Total time data should be sent (in intervals)
+# @client_sd -> client socket connection
+# @format -> Format data print
+def sendIntervalData(data, interval, duration, client_sd, format):
+    # See utils.printHeader()
+    utils.printHeader()
+    # As long as the total time is above 0
+    while duration > 0:
+        # Total interval time
+        t_end = time.time() + interval
+        # As long as time is within interval
+        while time.time() < t_end:
+            # Send data to client
+            client_sd.sendall(data)
+        # Send print request to server after interval has ran out
+        client_sd.send(b"Print")
+        # Print data received from server on the client
+        utils.printItervalData(client_sd, format)
+        # Decrement duration
+        duration -= 1
+    # After duration is finished, send ACK indicating interval is finished
+    # See -> sendIntervalACK()
+    sendIntervalACK(client_sd)
+
 # Send ACK to server indicating data transfer is done
 # @client_sd -> client socket connection
 # @format -> Format data should be printed
@@ -60,6 +87,7 @@ def handleClientData(start_time, total_received, addr, format, client):
     
     # Format elapsed_time
     elapsed_time = "{:.1f}".format(elapsed_time)
+    
     # Make JSON object from data recieved
     results = { "ip": f"{addr[0]}:{addr[1]}", "interval": f"0.0 - {elapsed_time}", "recieved": total_received, "bandwidth": f"{bandwidth} Mbps" }
 
@@ -70,20 +98,20 @@ def handleClientData(start_time, total_received, addr, format, client):
     # Send results to client
     client.sendall(json.dumps(results).encode('utf-8'))
 
-# Handle data recieved from client in intervals
+# Print data recieved from client in intervals
 # @start_time -> time since transfer started
 # @total_received -> Total amout of data recieved (bytes)
 # @format -> Format data should be printed
 # @client -> client socket connection
 # @i -> start time in interval
 # @diff -> end time in interval
-def handleClientIntervalData(start_time, total_received, addr, format, client, i, diff):
+def printClientIntervalData(start_time, total_received, addr, format, client, i, diff):
     # Only print header if i = 0.0
     if i == 0.0:
         # See utils.printHeader()
         utils.printHeader()
     
-    # Time since start of transer
+    # Interval total time since start of transer
     interval_time = time.time() - start_time - i
     # Calculate bandwidth
     bandwidth = "{:.2f}".format(int(total_received / interval_time / (1000 * 1000)))
@@ -95,3 +123,40 @@ def handleClientIntervalData(start_time, total_received, addr, format, client, i
     utils.printResults(results, format)
     # Send results to client
     client.sendall(json.dumps(results).encode('utf-8'))
+
+# Handle data recieved from client in intervals
+# @client -> client conection
+# @addr -> client ip address & port
+# @format -> format to print data
+def handleClientIntervalData(addr, format, client):
+    # Global counter for interval connections
+    i = 0.0
+    # Start of data transfer
+    start_time = time.time()
+    # Total data received
+    total_received = 0
+    # Send Interval ACK to client
+    client.sendall(b"Interval ACK")
+
+    while True:
+        # Recieve data from client
+        data = client.recv(1000)
+        # Add lenght of data to total recieved data
+        total_received += len(data)
+        # If client sends "Print" = interval is finished
+        if data == b"Print":
+             # Current time
+            current_time = time.time()
+            # Difference start
+            diff = float("{:.1f}".format(current_time - start_time))
+            # See printClientIntervalData()
+            printClientIntervalData(start_time, total_received, addr, format, client, i, diff)
+
+            # Add different to counter
+            i += (diff - i)
+            # Reset total_received after interval
+            total_received = 0
+        
+        # Break if interval is finished
+        if data == b"Interval finished":
+            break

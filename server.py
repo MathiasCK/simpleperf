@@ -20,34 +20,21 @@ def handleClient(client, addr, format):
         # Data recieved (default 0)
         total_received = 0
 
-        # Global counter for interval connections
-        global i
-        i = 0.0
-
         while True:
             # Recieve data from client
             data = client.recv(1000)
 
+            # If client connects via interval
+            if data == b"Interval":
+                data_handlers.handleClientIntervalData(addr, format, client)
+                break
             # If no data or ACK is sent from client
             if not data or data == b"BYE":
                 # See data_handlers.handleClientData()
                 data_handlers.handleClientData(start_time, total_received, addr, format, client)
                 break
-            # Break out when all intervals have completed
-            if data == b"Interval finished":
-                break
             # Add lenght of data to total recieved data
             total_received += len(data)
-            # If client connects via interval
-            if data == b"Interval":
-                # Current time
-                current_time = time.time()
-                # Difference start
-                diff = float("{:.1f}".format(current_time - start_time))
-                # See datahandlers.handleClientIntervalData()
-                data_handlers.handleClientIntervalData(start_time, total_received, addr, format, client, i, diff)
-                # Increase counter
-                i += (diff - i)
         
         # Close client connection
         client.close()

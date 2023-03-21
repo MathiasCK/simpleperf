@@ -1,5 +1,5 @@
 from socket import socket, AF_INET, SOCK_STREAM
-from utils import utils, responses, timer, data_handlers
+from utils import utils, responses, data_handlers
 import time
 
 # Send and recieve data from server
@@ -29,18 +29,14 @@ def execute(client_sd, num, interval, duration, format):
             # Start timer which executes data_handlers.printIntervalData every @interval
             # @client_sd -> client socket
             # @format -> format data should be rintet 
-            utils.printHeader()
-            rt = timer.RepeatedTimer(interval, utils.printItervalData, client_sd, format)
-            try:
-                # Send data every @interval seconds
-                data_handlers.sendData(data, interval, start_time, client_sd)
-                # Repeat @duration times
-                time.sleep(duration)
-            finally:
-                # Stop timer after duration is met
-                rt.stop()
-                # Send ACK to server -> see data_handlers.sendIntervalACK()
-                data_handlers.sendIntervalACK(client_sd)
+            # Send "Interval" to server indicating interval
+            client_sd.send(b"Interval")
+            ack = client_sd.recv(1024).decode('utf-8')
+            # Check server response ACK
+            if ack == 'Interval ACK':
+                # See data_handlers.sendIntervalData()
+                data_handlers.sendIntervalData(data, interval, duration, client_sd, format)
+
         #If --interval flag is not provided
         else:
             # See data_handlers.sendData()
