@@ -35,7 +35,7 @@ def sendIntervalData(data, interval, duration, client_sd, format):
         # Print data received from server on the client
         utils.printItervalData(client_sd, format)
         # Decrement duration
-        duration -= 1
+        duration -= interval
     # After duration is finished, send ACK indicating interval is finished
     # See -> sendIntervalACK()
     sendIntervalACK(client_sd)
