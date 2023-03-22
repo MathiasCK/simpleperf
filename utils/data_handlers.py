@@ -88,7 +88,7 @@ def handleClientData(start_time, total_received, addr, format, client):
     # Time since start of transer
     elapsed_time = time.time() - start_time
     # Calculate bandwidth
-    bandwidth = "{:.2f}".format(int(total_received / elapsed_time / (1000 * 1000)))
+    bandwidth = "{:.2f}".format(float(total_received / elapsed_time / (1000 * 1000)))
     
     # Format elapsed_time
     elapsed_time = "{:.1f}".format(floor(elapsed_time))
