@@ -147,7 +147,6 @@ def printHeader():
 def printResults(results, format):
     # See handleFormat()
     recieved = handleFormat(format, results.get("recieved"))
-
     # Print values
     print("{:<20} {:<15} {:<15} {:<15}".format(results.get("ip"), results.get("interval"), recieved, results.get("bandwidth")))
 
@@ -166,4 +165,4 @@ def printItervalData(client_sd, format):
 # @total_received -> total amount of data received in bytes
 # @bandwidth -> calculated bandwidth
 def makeJSONObj(addr, interval, total_received, bandwidth):
-    return { "ip": f"{addr[0]}:{addr[1]}", "interval": interval, "recieved": total_received, "bandwidth": f"{bandwidth} Mbps" }
+    return { "ack": "ACK/BYE", "ip": f"{addr[0]}:{addr[1]}", "interval": interval, "recieved": total_received, "bandwidth": f"{bandwidth} Mbps" }

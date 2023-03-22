@@ -54,14 +54,12 @@ def sendACK(client_sd, format):
     client_sd.send(b"BYE")
     
     # Recieve ACK from server
-    ack = client_sd.recv(1024).decode('utf-8')
+    results = json.loads(client_sd.recv(1024).decode('utf-8'))
 
     # If ACK is recieved print data
-    if "ACK/BYE" in ack:
+    if results.get('ack') == "ACK/BYE":
         # See utils.printHeader()
         utils.printHeader()
-        # Recieve data from server
-        results = json.loads(client_sd.recv(1024).decode('utf-8'))
         # See -> utils printResults()
         utils.printResults(results, format)
     else:
@@ -103,8 +101,6 @@ def handleClientData(start_time, total_received, addr, format, client):
 
     # Print results on server -> see utils.printResults()
     utils.printResults(results, format)
-    # Send ACK to client indicating data transfer is done
-    client.sendall(b"ACK/BYE")
     # Send results to client
     client.sendall(json.dumps(results).encode('utf-8'))
 
@@ -120,7 +116,7 @@ def printClientIntervalData(start_time, total_received, addr, format, client, in
     if interval_start == 0.0:
         # See utils.printHeader()
         utils.printHeader()
-    
+
     # Interval total time since start of transer
     interval_time = time.time() - start_time - interval_start
     # Calculate bandwidth
