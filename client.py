@@ -13,9 +13,6 @@ def execute(client_sd, num, interval, duration, format):
         # Default data
         global data
         data = b"x" * 1000 # 1000 bytes at a time
-
-        # Time execution starts
-        start_time = time.time()
         
         # If --num flag is provided
         if num is not None:
@@ -40,9 +37,7 @@ def execute(client_sd, num, interval, duration, format):
         #If --interval flag is not provided
         else:
             # See data_handlers.sendData()
-            data_handlers.sendData(data, duration, start_time, client_sd)
-            # See data_handlers.sendACK()
-            data_handlers.sendACK(client_sd, format)
+            data_handlers.sendData(data, duration, client_sd, format)
     
     # ConnectionAbortedError handling
     except ConnectionAbortedError:

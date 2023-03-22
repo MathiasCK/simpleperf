@@ -6,12 +6,18 @@ from . import responses
 # Send data to server
 # @data -> bytes (default 1000 bytes)
 # @duration -> Time data should be sent to server (default 10 seconds)
-# @start_time -> Time since connection started
 # @client_sd -> client socket connection
-def sendData(data, duration, start_time, client_sd):
-    while time.time() - start_time < duration:
+# @format -> Format data print
+def sendData(data, duration, client_sd, format):
+    t_end = time.time() + duration
+    while time.time() < t_end:
         # Send data as long as duration valid
-        client_sd.sendall(data)
+        client_sd.send(data)
+    
+    # Wait for all data to be sent before sending ACK
+    time.sleep(0.5)
+    # See sendACK()
+    sendACK(client_sd, format)
 
 # Send data to server in interval
 # @data -> bytes (default 1000 bytes)
@@ -45,7 +51,8 @@ def sendIntervalData(data, interval, duration, client_sd, format):
 # @format -> Format data should be printed
 def sendACK(client_sd, format):
     # Send ACK
-    client_sd.sendall(b"BYE")
+    client_sd.send(b"BYE")
+    
     # Recieve ACK from server
     ack = client_sd.recv(1024).decode('utf-8')
 
@@ -98,6 +105,8 @@ def handleClientData(start_time, total_received, addr, format, client):
     utils.printResults(results, format)
     # Send ACK to client indicating data transfer is done
     client.sendall(b"ACK/BYE")
+    # Wait for ACK to send to client
+    time.sleep(1)
     # Send results to client
     client.sendall(json.dumps(results).encode('utf-8'))
 
