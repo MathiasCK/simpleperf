@@ -2,6 +2,7 @@ from utils import utils
 import time
 import json
 from . import responses
+from math import floor
 
 # Send data to server
 # @data -> bytes (default 1000 bytes)
@@ -25,8 +26,8 @@ def sendData(data, duration, client_sd, format):
 def sendIntervalData(data, interval, duration, client_sd, format):
     # See utils.printHeader()
     utils.printHeader()
-    # As long as the total time is above 0
-    while duration > 0:
+    # As long as the total time is above interval
+    while duration > interval:
         # Total interval time
         t_end = time.time() + interval
         # As long as time is within interval
@@ -34,7 +35,9 @@ def sendIntervalData(data, interval, duration, client_sd, format):
             # Send data to client
             client_sd.sendall(data)
         # Send print request to server after interval has ran out
-        client_sd.send(b"Print")
+        intervalCount = b"i" * interval
+     
+        client_sd.sendall(intervalCount)
         # Print data received from server on the client
         utils.printItervalData(client_sd, format)
         # Decrement duration
@@ -90,7 +93,7 @@ def handleClientData(start_time, total_received, addr, format, client):
     bandwidth = "{:.2f}".format(int(total_received / elapsed_time / (1000 * 1000)))
     
     # Format elapsed_time
-    elapsed_time = "{:.1f}".format(elapsed_time)
+    elapsed_time = "{:.1f}".format(floor(elapsed_time))
     
     # Format interval
     interval = f"0.0 - {elapsed_time}"
@@ -112,19 +115,19 @@ def handleClientData(start_time, total_received, addr, format, client):
 # @client -> client socket connection
 # @i -> start time in interval
 # @diff -> end time in interval
-def printClientIntervalData(start_time, total_received, addr, format, client, i, diff):
-    # Only print header if i = 0.0
-    if i == 0.0:
+def printClientIntervalData(start_time, total_received, addr, format, client, interval_start, interval_end):
+    # Only print header if interval_start = 0.0
+    if interval_start == 0.0:
         # See utils.printHeader()
         utils.printHeader()
     
     # Interval total time since start of transer
-    interval_time = time.time() - start_time - i
+    interval_time = time.time() - start_time - interval_start
     # Calculate bandwidth
     bandwidth = "{:.2f}".format(int(total_received / interval_time / (1000 * 1000)))
 
-    #Format interval 
-    interval = f"{i} - {diff}"
+    # Format interval 
+    interval = f"{interval_start} - {interval_end}"
 
     # See utils.makeJSONObj
     results = utils.makeJSONObj(addr, interval, total_received, bandwidth)
@@ -139,8 +142,12 @@ def printClientIntervalData(start_time, total_received, addr, format, client, i,
 # @addr -> client ip address & port
 # @format -> format to print data
 def handleClientIntervalData(addr, format, client):
+    # Global counter for interval value
+    global interval_end
+    interval_end = 0.0
     # Global counter for interval connections
-    i = 0.0
+    global interval_start
+    interval_start = 0.0
     # Start of data transfer
     start_time = time.time()
     # Total data received
@@ -151,22 +158,23 @@ def handleClientIntervalData(addr, format, client):
     while True:
         # Recieve data from client
         data = client.recv(1000)
-        # Add lenght of data to total recieved data
-        total_received += len(data)
-        # If client sends "Print" = interval is finished
-        if data == b"Print" or b"Print" in data:
-             # Current time
-            current_time = time.time()
-            # Difference start
-            diff = float("{:.1f}".format(current_time - start_time))
-            # See printClientIntervalData()
-            printClientIntervalData(start_time, total_received, addr, format, client, i, diff)
-
-            # Add different to counter
-            i += (diff - i)
-            # Reset total_received after interval
-            total_received = 0
-        
         # Break if interval is finished
         if data == b"Interval finished":
             break
+        # Add lenght of data to total recieved data
+        total_received += len(data)
+        # If client sends bytes containing x amount of i values = interval is finished
+        if b"i" in data:
+            # Only set interval value on first interval
+            # Interval end value is total number of "i" bytes sent
+            if interval_start == 0.0:
+                interval_end = float(str(data).count('i'))
+
+            # See printClientIntervalData()
+            printClientIntervalData(start_time, total_received, addr, format, client, interval_start, interval_end)
+
+            # Update interval start/end values
+            interval_start = interval_end
+            interval_end += interval_end
+            # Reset total_received after interval
+            total_received = 0

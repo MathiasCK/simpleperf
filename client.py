@@ -1,6 +1,5 @@
 from socket import socket, AF_INET, SOCK_STREAM
 from utils import utils, responses, data_handlers
-import time
 
 # Send and recieve data from server
 # @client_sd -> single client socket
