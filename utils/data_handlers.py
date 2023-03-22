@@ -13,9 +13,6 @@ def sendData(data, duration, client_sd, format):
     while time.time() < t_end:
         # Send data as long as duration valid
         client_sd.send(data)
-    
-    # Wait for all data to be sent before sending ACK
-    time.sleep(0.5)
     # See sendACK()
     sendACK(client_sd, format)
 
@@ -36,8 +33,6 @@ def sendIntervalData(data, interval, duration, client_sd, format):
         while time.time() < t_end:
             # Send data to client
             client_sd.sendall(data)
-        # Wait for all data to send
-        time.sleep(1)
         # Send print request to server after interval has ran out
         client_sd.send(b"Print")
         # Print data received from server on the client
@@ -59,7 +54,7 @@ def sendACK(client_sd, format):
     ack = client_sd.recv(1024).decode('utf-8')
 
     # If ACK is recieved print data
-    if ack == "ACK/BYE":
+    if "ACK/BYE" in ack:
         # See utils.printHeader()
         utils.printHeader()
         # Recieve data from server
@@ -107,8 +102,6 @@ def handleClientData(start_time, total_received, addr, format, client):
     utils.printResults(results, format)
     # Send ACK to client indicating data transfer is done
     client.sendall(b"ACK/BYE")
-    # Wait for ACK to send to client
-    time.sleep(1)
     # Send results to client
     client.sendall(json.dumps(results).encode('utf-8'))
 
@@ -161,7 +154,7 @@ def handleClientIntervalData(addr, format, client):
         # Add lenght of data to total recieved data
         total_received += len(data)
         # If client sends "Print" = interval is finished
-        if data == b"Print":
+        if data == b"Print" or b"Print" in data:
              # Current time
             current_time = time.time()
             # Difference start

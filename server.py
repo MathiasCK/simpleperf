@@ -28,13 +28,14 @@ def handleClient(client, addr, format):
             if data == b"Interval":
                 data_handlers.handleClientIntervalData(addr, format, client)
                 break
+            # Add lenght of data to total recieved data
+            total_received += len(data)
             # If no data or ACK is sent from client
             if not data or data == b"BYE" or b"BYE" in data:
                 # See data_handlers.handleClientData()
                 data_handlers.handleClientData(start_time, total_received, addr, format, client)
                 break
-            # Add lenght of data to total recieved data
-            total_received += len(data)
+            
 
         
         # Close client connection
