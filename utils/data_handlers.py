@@ -36,6 +36,8 @@ def sendIntervalData(data, interval, duration, client_sd, format):
         while time.time() < t_end:
             # Send data to client
             client_sd.sendall(data)
+        # Wait for all data to send
+        time.sleep(1)
         # Send print request to server after interval has ran out
         client_sd.send(b"Print")
         # Print data received from server on the client
