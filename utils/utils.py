@@ -47,19 +47,19 @@ def checkServerOpts():
 # Check for optional arguments for client startup
 def checkClientOpts():
     # Default values for ip, port, time, format, interval, parallel and num
-    global ip
+    global ip # server IP addres (default localhost)
     ip = "localhost"
-    global port
+    global port # server port (default 8088)
     port = "8088"
-    global time
+    global time # total amount of time for data transfer (default 10 seconds)
     time = 10
     global format
-    format = "MB"
-    global interval
+    format = "MB" # format data should print (default MB)
+    global interval # total amount of data transfer intervals (default None = 1 interval)
     interval = None
-    global parallel
+    global parallel # total amount of paralell connections (default 1)
     parallel = 1
-    global num
+    global num # total amount of data (default None = 1000bytes)
     num = None
 
     # Check default values should be overwritten

@@ -27,7 +27,7 @@ def sendIntervalData(data, interval, duration, client_sd, format):
     # See utils.printHeader()
     utils.printHeader()
     # As long as the total time is above interval
-    while duration > interval:
+    while duration >= interval:
         # Total interval time
         t_end = time.time() + interval
         # As long as time is within interval
@@ -138,12 +138,15 @@ def printClientIntervalData(start_time, total_received, addr, format, client, in
 # @addr -> client ip address & port
 # @format -> format to print data
 def handleClientIntervalData(addr, format, client):
-    # Global counter for interval value
+    # Global counter for end interval value
     global interval_end
     interval_end = 0.0
-    # Global counter for interval connections
+    # Global counter for start interval value
     global interval_start
     interval_start = 0.0
+    # Global value for interval
+    global interval
+    interval = 0.0
     # Start of data transfer
     start_time = time.time()
     # Total data received
@@ -164,13 +167,15 @@ def handleClientIntervalData(addr, format, client):
             # Only set interval value on first interval
             # Interval end value is total number of "i" bytes sent
             if interval_start == 0.0:
-                interval_end = float(str(data).count('i'))
-
+                interval = float(str(data).count('i'))
+                interval_end = float(str(data).count('i'))    
+            
             # See printClientIntervalData()
             printClientIntervalData(start_time, total_received, addr, format, client, interval_start, interval_end)
 
-            # Update interval start/end values
-            interval_start = interval_end
-            interval_end += interval_end
+            # Update start & end
+            interval_start += interval
+            interval_end += interval
+
             # Reset total_received after interval
             total_received = 0
